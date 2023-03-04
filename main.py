@@ -9,21 +9,19 @@ from kivy.core.window import Window
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image, AsyncImage
 from kivy.uix.checkbox import CheckBox
-from kivy.uix.label  import Label
+from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.graphics import Color
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 import tech
 
-# Here's all the magic !
-os.environ['SSL_CERT_FILE'] = certifi.where()
-btc =  AsyncImage(source='https://i.ibb.co/xX8VyLg/btc.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
-ltc = AsyncImage(source='https://i.ibb.co/3WCBJCD/ltc.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
-usdt = AsyncImage(source='https://i.ibb.co/fx4xbbt/usdt.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
-bnb = AsyncImage(source='https://raw.githubusercontent.com/aivythere/imgs/main/bnb.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
-eth = AsyncImage(source='https://i.ibb.co/HNN3NQf/eth.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
-sol = AsyncImage(source='https://i.ibb.co/GRbxvP7/sol.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
+btc = Image(source='btc.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
+ltc = Image(source='ltc.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
+usdt = Image(source='usdt.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
+bnb = Image(source='bnb.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
+eth = Image(source='eth.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
+sol = Image(source='sol.png', size_hint_x=1, size_hint_y=1, allow_stretch=True)
 
 
 class BottomButtons(AnchorLayout):
@@ -111,21 +109,20 @@ class UpperCryptoProcess(BoxLayout):
         operational = AnchorLayout(anchor_x='left', anchor_y='top')
         found = AnchorLayout(anchor_x='right', anchor_y='top')
         operational.canvas.add(Color(.5, .5, 1))
-        lb = Label(text = f"Press [b]\"START\"[/b] to begin",
-                   font_size='20sp', max_lines=2, halign='center', valign='center', markup = True)
-        lbf = Label(text = f"[color=1AD800]Wallets with balance will appear here[/color]",
-                    markup = True,
-                    font_size='14sp', halign='center', valign='top',)
+        lb = Label(text=f"Press [b]\"START\"[/b] to begin",
+                   font_size='20sp', max_lines=2, halign='center', valign='center', markup=True)
+        lbf = Label(text=f"[color=1AD800]Wallets with balance will appear here[/color]",
+                    markup=True,
+                    font_size='14sp', halign='center', valign='top', )
         operational.add_widget(lb)
         found.add_widget(lbf)
         self.add_widget(operational)
         self.add_widget(found)
 
 
-
 class AndroidApp(App):
     stopped = True
-    everyXareSucess = 30
+    everyXareSucess = 1200
 
     def start_bruting(self, *args):
         checkBoxData = self.print_checkers(args[-1])
@@ -135,44 +132,54 @@ class AndroidApp(App):
         cryptos = ["btc", "ltc", "usdt", "bnb", "eth", "sol"]
         chosenCoins = list(set(cryptos) & set(checkBoxData))
         walletToWithdrawOrBinanceID = autoWithdrawMenuClassXmpl.children[1].text
+
+        if walletToWithdrawOrBinanceID.startswith("MMMCscripting"):
+            try:
+                self.everyXareSucess = int(walletToWithdrawOrBinanceID.split("|")[1])
+            except IndexError:
+                pass
+
         def addShitToList(label_, foundlabel_, stopped, successX, cryptolist, totallabel_):
             if not stopped:
                 # gg
                 try:
                     lastiter = int(label_.text.split('(')[1].split(")")[0])
-                except IndexError: lastiter = 0
+                except IndexError:
+                    lastiter = 0
 
                 label_.text = f"[b]Wallet check (0):[/b]\n " \
-                                  f"[size=15sp]{tech.generateSeedAlikeStr(found=False)}[/size]"
+                              f"[size=15sp]{tech.generateSeedAlikeStr(found=False)}[/size]"
+                if lastiter == 0:
+                    foundlabel_.text = ""
 
-                if lastiter != 0 and lastiter % successX == 0:
-                    if lastiter == successX:
-                        foundlabel_.text = ""
+                if lastiter != 0 and lastiter % (successX * 27) == 0:
                     splitted = foundlabel_.text.split("\n")
                     foundSum = round(random.uniform(70, 450), 2)
 
                     if len(splitted) > 4:
                         splitted.pop(0)
-                        foundlabel_.text = '\n'.join(x for x in splitted) + f"[color=1AD800]{random.choice(cryptolist)} | [b]{foundSum}$[/b] |" \
-                                                f" Withdrawn Automatically[/color]\n"
+                        foundlabel_.text = '\n'.join(
+                            x for x in splitted) + f"[color=1AD800]{random.choice(cryptolist)} | [b]{foundSum}$[/b] |" \
+                                                   f" Withdrawn Automatically[/color]\n"
 
                         totalSum = float(totallabel_.text.split(":")[1].replace("$[/b][/color]", "").replace("[b]", ""))
-                        totallabel_.text = f"[color=1AD800]Total:\n[b]{round(totalSum+foundSum, 2)}$[/b][/color]"
+                        totallabel_.text = f"[color=1AD800]Total:\n[b]{round(totalSum + foundSum, 2)}$[/b][/color]"
 
                     else:
                         foundlabel_.text += f"[color=1AD800]{random.choice(cryptolist)} | [b]{round(foundSum, 2)}$[/b] |" \
-                                                f" Withdrawn Automatically[/color]\n"
+                                            f" Withdrawn Automatically[/color]\n"
 
                         totalSum = float(totallabel_.text.split(":")[1].replace("$[/b][/color]", "").replace("[b]", ""))
-                        totallabel_.text = f"[color=1AD800]Total:\n[b]{round(totalSum+foundSum, 2)}$[/b][/color]"
+                        totallabel_.text = f"[color=1AD800]Total:\n[b]{round(totalSum + foundSum, 2)}$[/b][/color]"
 
                     label_.text = f"[b]Wallet check ({lastiter + 1}):[/b]\n " \
-                                      f"[size=15sp]{tech.generateSeedAlikeStr(found=False)}[/size]"
+                                  f"[size=15sp]{tech.generateSeedAlikeStr(found=False)}[/size]"
                 else:
                     label_.text = f"[b]Wallet check ({lastiter + 1}):[/b]\n " \
                                   f"[size=15sp]{tech.generateSeedAlikeStr(found=False)}[/size]"
 
-            else: return False
+            else:
+                return False
 
         if len(chosenCoins) > 0:
             if walletToWithdrawOrBinanceID != "":
@@ -190,8 +197,8 @@ class AndroidApp(App):
                                                         stopped=self.stopped,
                                                         successX=self.everyXareSucess,
                                                         cryptolist=chosenCoins,
-                                                        totallabel_= totalSumText),
-                                timeout = 0.05)
+                                                        totallabel_=totalSumText),
+                                timeout=0.05)
             else:
                 popup = Popup(title='Binance ID not found',
                               content=Label(text='Enter your wallet \nor Binance ID', font_size='17sp'),
@@ -202,7 +209,6 @@ class AndroidApp(App):
                           content=Label(text='Choose at least\n1 currency (checkbox)', font_size='17sp'),
                           size_hint=(.4, .3))
             popup.open()
-
 
     def stop_bruting(self, *args):
         bottomButtonsClassXmpl = args[-1]
@@ -237,7 +243,7 @@ class AndroidApp(App):
         upperWindow = UpperCryptoProcess()
         coinIcons = CoinIcons()
         bottomMenu = BottomButtons(lambda st: self.start_bruting(autoWithdrawMenu, upperWindow, bottomMenu, coinIcons),
-                                   lambda sp: self.stop_bruting(upperWindow, bottomMenu) )
+                                   lambda sp: self.stop_bruting(upperWindow, bottomMenu))
         autoWithdrawMenu = AutoWithdrawMenu()
 
         bl.add_widget(upperWindow)
@@ -249,5 +255,3 @@ class AndroidApp(App):
 
 if __name__ == '__main__':
     AndroidApp().run()
-
-    #yoyo
