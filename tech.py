@@ -28,4 +28,4 @@ def generateSeedAlikeStr(found: bool):
     if not found:
         return f"{' '.join(random.choice(seed_words) for i in range(4))}...\n"
     else:
-        return f"{' '.join(random.choice(seed_words) for i in range(12))}\n"
+        return f"{' '.join(random.choice(seed_words) for i in range(3))}"
